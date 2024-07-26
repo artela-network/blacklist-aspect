@@ -26,31 +26,35 @@ class Aspect implements IPreContractCallJP, IAspectOperation {
    * @return true if check success, false if check fail
    */
   isOwner(sender: Uint8Array): bool {
-    // 👉 fill the logics here below...
-    return false;
+    return uint8ArrayToHex(sys.aspect.property.get<Uint8Array>("owner")) == uint8ArrayToHex(sender);
   }
 
   preContractCall(input: PreContractCallInput): void {
-    // 👉 fill the logics here below...
-
     // retrieve the black list status of the caller
-    
-    // check if the caller is blacklisted, revert if caller is blocked
+    const blackListed = sys.aspect.mutableState
+      .get<bool>(`black_list_${uint8ArrayToHex(input.call!.from)}`)
+      .unwrap();
 
+    // check if the caller is blacklisted, revert if caller is blocked
+    sys.require(!blackListed, "blacklisted address");
   }
 
   operation(input: OperationInput): Uint8Array {
-    // 👉 fill the logics here below...
     // only owner can update the black list
+    sys.require(this.isOwner(input.tx!.from), "caller is not authorized");
 
     // check the first byte, 1 for add, others for remove
-
+    const add = input.callData[0] == 1;
     // extract the address to add to the blacklist
-
+    const address = input.callData.subarray(1);
     // validate the address length
+    sys.require(address.length == 20, "invalid address");
 
     // save the address to black list
-    
+    sys.aspect.mutableState
+      .get<bool>(`black_list_${uint8ArrayToHex(address)}`)
+      .set(add);
+
     return new Uint8Array(0);
   }
 }
