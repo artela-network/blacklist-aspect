@@ -4,7 +4,7 @@
 
 // import required libs
 const fs = require('fs');
-const Web3 = require('@artela/web3');
+const Web3 = require('@artela-next/web3');
 var argv = require('yargs')
     .string('node')
     .string('skfile')
@@ -72,7 +72,7 @@ async function call() {
             }
         }
     }
-    
+
     //--method count
     const method = argv.method;
     if(!method || method==='undefined') {

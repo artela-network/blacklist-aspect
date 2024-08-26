@@ -1,6 +1,6 @@
 
 "use strict"
-const Web3 = require("@artela/web3");
+const Web3 = require("@artela-next/web3");
 const fs = require("fs");
 var argv = require('yargs')
     .string('node')
@@ -55,14 +55,14 @@ async function operationCall() {
 
     const aspectInstance = new web3.atl.Aspect(aspectId);
 
-    const encodeABI = aspectInstance.operation(callData).encodeABI();
+    const operationCall = aspectInstance.operation(callData);
 
     const tx = {
         from: sender.address,
         to: aspectContract.options.address,
-        data: encodeABI,
+        data: operationCall.encodeABI(),
         gasPrice,
-        gas: 900_000
+        gas: await operationCall.estimateGas({from: sender.address})
     }
     const isCall = argv.isCall
 
